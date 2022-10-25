@@ -1,10 +1,13 @@
 import { withIronSessionApiRoute } from "iron-session/next";
 import client from "@libs/server/client";
-import withHandler, { ResponsType } from "@libs/server/withHandler";
+import withHandler, { ResponseType } from "@libs/server/withHandler";
 import { NextApiRequest, NextApiResponse } from "next";
 import { withApiSession } from "@libs/server/withSession";
 
-async function handler(req: NextApiRequest, res: NextApiResponse<ResponsType>) {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseType>
+) {
   const { token } = req.body;
   const foundToken = await client.token.findUnique({
     where: {
@@ -23,4 +26,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponsType>) {
   });
   res.json({ ok: true });
 }
-export default withApiSession(withHandler("POST", handler));
+export default withApiSession(
+  withHandler({ methods: ["POST"], handler, isPrivate: false })
+);

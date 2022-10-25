@@ -1,12 +1,15 @@
 import twilio from "twilio";
 import client from "@libs/server/client";
-import withHandler, { ResponsType } from "@libs/server/withHandler";
+import withHandler, { ResponseType } from "@libs/server/withHandler";
 import { NextApiRequest, NextApiResponse } from "next";
 const nodemailer = require("nodemailer");
 
 // const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
 
-async function handler(req: NextApiRequest, res: NextApiResponse<ResponsType>) {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseType>
+) {
   const { phone, email } = req.body;
   const user = phone ? { phone } : email ? { email } : null;
   if (!user) return res.status(400).json({ ok: false });
@@ -63,4 +66,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse<ResponsType>) {
     ok: true,
   });
 }
-export default withHandler("POST", handler);
+export default withHandler({ methods: ["POST"], handler, isPrivate: false });
