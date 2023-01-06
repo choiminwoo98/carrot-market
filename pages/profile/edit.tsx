@@ -33,27 +33,51 @@ const EditProfile: NextPage = () => {
   } = useForm<EditProfileForm>();
   useEffect(() => {
     if (user?.name) setValue("name", user.name);
-
     if (user?.email) setValue("email", user.email);
     if (user?.phone) setValue("phone", user.phone);
+    if (user?.avatar)
+      setAvatarPreview(
+        `https://imagedelivery.net/ybb_Xz5A5v-esdDAC_vNpg/${user.avatar}/avatar`
+      );
   }, [user, setValue]);
   const [editProfile, { data, loading }] =
     useMutation<EditProfileRespone>(`/api/users/me`);
-  const onValid = ({ email, phone, name, avatar }: EditProfileForm) => {
-    console.log(avatar);
-    return;
+  const onValid = async ({ email, phone, name, avatar }: EditProfileForm) => {
     if (loading) return;
     if (email === "" && phone === "" && name === "") {
       setError("formErrors", {
         message: "Emamil OR Phone number are required",
       });
     }
-    editProfile({
-      email,
-      phone,
-      name,
-    });
+    if (avatar && avatar.length > 0 && user) {
+      const { uploadURL } = await (await fetch(`/api/files`)).json();
+      const form = new FormData();
+
+      form.append("file", avatar[0], user?.id + "");
+      const {
+        result: { id },
+      } = await (
+        await fetch(uploadURL, {
+          method: "POST",
+          body: form,
+        })
+      ).json();
+
+      editProfile({
+        email,
+        phone,
+        name,
+        avatarId: id,
+      });
+    } else {
+      editProfile({
+        email,
+        phone,
+        name,
+      });
+    }
   };
+
   useEffect(() => {
     if (data && !data.ok && data.error) {
       setError("formErrors", { message: data.error });

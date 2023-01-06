@@ -4,8 +4,8 @@ import Item from "@components/item";
 import Layout from "@components/layout";
 import useUser from "@libs/client/useUser";
 import useSWR from "swr";
-import products from "./api/products";
 import { Product } from "@prisma/client";
+
 export interface ProductWithCount extends Product {
   _count: {
     favs: number;
